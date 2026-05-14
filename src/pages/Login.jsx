@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +10,14 @@ function Login() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+       const isLoggedIn = localStorage.getItem( "isLoggedIn" );
+
+    if (isLoggedIn) {
+      navigate("/dashboard");
+    }
+  }, []);
+
   // VALIDATION
 
   const validationSchema =
@@ -20,31 +28,36 @@ function Login() {
         .required("Email is required"),
 
       password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
+        .min(6,"Password must be at least 6 characters" )
         .required("Password is required"),
     });
 
   // FORMIK
 
-  const formik = useFormik({
+  const formik =
+    useFormik({
 
-    initialValues: {
+      initialValues: {
 
-      email: "",
-      password: "",
-    },
+        email: "",
+        password: "",
+      },
 
-    validationSchema,
+      validationSchema,
 
-    onSubmit: (values) => {
+      onSubmit: (values) => {
 
-      console.log(values);
+        // SAVE LOGIN DATA
 
-      localStorage.setItem("isLoggedIn", true);
+        localStorage.setItem("isLoggedIn",true);
 
-      navigate("/dashboard");
-    },
-  });
+        localStorage.setItem("email",values.email);
+
+        localStorage.setItem("password",values.password);
+
+        navigate("/dashboard");
+      },
+    });
 
   return (
 
@@ -52,19 +65,17 @@ function Login() {
 
       <div className="bg-white p-10 rounded-2xl shadow w-96">
 
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          ATS Login
-        </h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">ATS Login</h1>
 
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={ formik.handleSubmit}>
 
           {/* EMAIL */}
 
           <div className="mb-4">
 
             <input type="email" name="email" placeholder="Email" className="w-full border p-3 rounded"
-              value={formik.values.email}
-              onChange={formik.handleChange}
+              value={ formik.values.email }
+              onChange={formik.handleChange }
               onBlur={formik.handleBlur}
             />
 
@@ -81,14 +92,15 @@ function Login() {
           <div className="mb-4">
 
             <input type="password" name="password" placeholder="Password" className="w-full border p-3 rounded"
-              value={ formik.values.password }
+              value={ formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
             />
 
-            {formik.touched .password && formik.errors .password && (
+            {formik.touched.password &&
+              formik.errors.password && (
 
-                <p className="text-red-500 text-sm mt-1"> { formik.errors .password} </p>
+                <p className="text-red-500 text-sm mt-1"> {formik.errors.password}</p>
               )}
 
           </div>
